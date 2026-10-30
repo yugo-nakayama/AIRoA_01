@@ -1,6 +1,6 @@
-outputs/*.mp4
-__pycache__/
-
 .venv/
 __pycache__/
 data/*.joblib
+outputs/*_raw.mp4
+outputs/demo_raw.mp4
+*.pyc
