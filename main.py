@@ -54,14 +54,20 @@ HOME = np.array([0.0, 0.35])
 for episode in range(3):
     objs = random_objects(5, rng)
     hold(1.5, objs, arm, None, f"Episode {episode+1}: new objects placed (random color / size / rotation)")
-    while True:
+    while objs:
         cam = render_scene(objs, None, None, noise=True, rng=rng, binned=binned)
         dets = detect(cam, clf)
-        if not dets:
+        # Keep detections that match remaining (unbinned) objects only
+        matched = []
+        for d in dets:
+            obj = min(objs, key=lambda o: np.linalg.norm(o["pos"] - d["pos"]))
+            if np.linalg.norm(obj["pos"] - d["pos"]) < 0.05:
+                matched.append((d, obj))
+        if not matched:
             break
-        hold(1.0, objs, arm, None, f"Perception: {len(dets)} objects detected & classified by AI", dets)
-        d = min(dets, key=lambda d: np.linalg.norm(d["pos"] - fk(arm.q)[1]))  # nearest first
-        obj = min(objs, key=lambda o: np.linalg.norm(o["pos"] - d["pos"]))
+        hold(1.0, objs, arm, None, f"Perception: {len(matched)} objects detected & classified by AI",
+             [m[0] for m in matched])
+        d, obj = min(matched, key=lambda m: np.linalg.norm(m[0]["pos"] - fk(arm.q)[1]))  # nearest first
         err = move(arm, d["pos"], objs, None, f"Reach -> {d['cls']} (conf {d['conf']:.2f})", [d])
         held = obj if err < 0.03 else None
         hold(0.3, objs, arm, held, "Grasp" if held else "Grasp FAILED", [d])
