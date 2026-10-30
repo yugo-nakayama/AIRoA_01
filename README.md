@@ -2,6 +2,10 @@
 
 Camera image -> AI (MLP) shape recognition -> inverse kinematics + PD control -> pick & place into bins.
 
+## Demo (YouTube)
+- https://youtu.be/hAfBYNnbS-E
+- Local copies: `outputs/PAI_final_demo.mp4`, `outputs/PAI_final_demo_repro_01.mp4`
+
 ## Run
 ```bash
 pip install -r requirements.txt
